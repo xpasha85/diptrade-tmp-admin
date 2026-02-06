@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diptrade Admin (v1)</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="brand">
+        <div class="brand__logo">DT</div>
+        <div class="brand__text">
+          <div class="brand__title">Diptrade Admin</div>
+          <div class="brand__subtitle">Read-only (v1)</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnRefresh" class="btn">Обновить</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="status">
+      <div id="apiBadge" class="badge badge--muted">API: неизвестно</div>
+      <div class="muted">Источник данных: <code>cars.json</code></div>
+    </section>
+
+    <section id="errorBox" class="error hidden">
+      <div class="error__title">Ошибка</div>
+      <pre id="errorText" class="error__text"></pre>
+    </section>
+
+    <section class="panel">
+      <div class="panel__head">
+        <h1 class="panel__title">Автомобили</h1>
+        <div id="countText" class="muted">—</div>
+      </div>
+
+      <div id="emptyState" class="empty hidden">
+        <div class="empty__title">Пока нет автомобилей</div>
+        <div class="muted">Добавление будет на следующем этапе. Сейчас — только просмотр.</div>
+      </div>
+
+      <div id="list" class="list"></div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
