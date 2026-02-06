@@ -1,11 +1,15 @@
 import { Router } from 'express';
+import multer from 'multer';
 import {
   readCars,
   readCarById,
   createCar,
   updateCar,
   deleteCar,
-  bulkDeleteCars
+  bulkDeleteCars,
+  uploadCarPhotos,
+  deleteCarPhoto,
+  reorderCarPhotos
 } from '../services/carsStore.js';
 import { loadEnv } from '../config/env.js';
 
@@ -18,6 +22,15 @@ function handleErr(res, e) {
     message: e.message || 'Unknown error'
   });
 }
+
+// Multer: храним в памяти, дальше sharp -> webp -> диск
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 15 * 1024 * 1024, // 15MB на файл
+    files: 20
+  }
+});
 
 router.get('/', async (req, res) => {
   try {
@@ -40,7 +53,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Этап D: create (без фото)
+// Stage D: create
 router.post('/', async (req, res) => {
   try {
     const car = await createCar(env, req.body || {});
@@ -50,7 +63,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Этап D: update (patch)
+// Stage D: update
 router.patch('/:id', async (req, res) => {
   try {
     const car = await updateCar(env, req.params.id, req.body || {});
@@ -60,7 +73,7 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// Этап D: delete
+// Stage D: delete
 router.delete('/:id', async (req, res) => {
   try {
     const result = await deleteCar(env, req.params.id);
@@ -70,12 +83,48 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Этап D: bulk delete (1 транзакция)
+// Stage D: bulk delete
 router.post('/bulk-delete', async (req, res) => {
   try {
     const ids = req.body?.ids;
     const result = await bulkDeleteCars(env, ids);
     res.json(result);
+  } catch (e) {
+    handleErr(res, e);
+  }
+});
+
+/* ===========================
+   Stage E: Photos
+   =========================== */
+
+// Upload photos (multipart/form-data, field name: "files")
+router.post('/:id/photos', upload.array('files', 20), async (req, res) => {
+  try {
+    const files = req.files || [];
+    const car = await uploadCarPhotos(env, req.params.id, files);
+    res.status(201).json({ car });
+  } catch (e) {
+    handleErr(res, e);
+  }
+});
+
+// Reorder photos
+router.patch('/:id/photos/reorder', async (req, res) => {
+  try {
+    const photos = req.body?.photos;
+    const car = await reorderCarPhotos(env, req.params.id, photos);
+    res.json({ car });
+  } catch (e) {
+    handleErr(res, e);
+  }
+});
+
+// Delete one photo by file name
+router.delete('/:id/photos/:name', async (req, res) => {
+  try {
+    const car = await deleteCarPhoto(env, req.params.id, req.params.name);
+    res.json({ car });
   } catch (e) {
     handleErr(res, e);
   }
