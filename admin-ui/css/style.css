@@ -1,480 +1,139 @@
 :root {
-    --pico-font-size: 90%; /* Чуть компактнее */
+    --pico-font-size: 90%;
 }
 
-/* Статус сервера */
-.status-badge {
-    font-size: 0.8em;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background-color: var(--pico-muted-border-color);
-    color: var(--pico-color);
-}
-.status-badge.online { background-color: #2d9d78; color: white; }
-.status-badge.offline { background-color: #e05260; color: white; }
-
-/* Таблица */
-.car-thumb {
-    width: 80px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
-    background-color: #f0f0f0;
+/* --- 1. ШАПКА --- */
+.app-header {
+    background-color: var(--pico-card-background-color);
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    padding: 0.75rem 0;
+    margin-bottom: 2rem;
 }
 
-.car-title {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 0.2rem;
-}
-
-.car-meta {
-    font-size: 0.85em;
-    color: var(--pico-muted-color);
-}
-
-/* Бейджи статусов авто */
-.badge {
-    font-size: 0.75em;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-.badge.active { background-color: #2d9d78; color: white; } /* Зеленый */
-.badge.sold { background-color: #e05260; color: white; }   /* Красный */
-.badge.hidden { background-color: #7f8fa6; color: white; } /* Серый */
-
-/* Кнопки действий */
-.actions-cell {
-    white-space: nowrap;
-    text-align: right;
-}
-.icon-btn {
-    padding: 0.4rem;
-    margin-left: 0.2rem;
-    font-size: 0.9em;
-}
-
-.toolbar {
+.header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
 }
 
-/* --- Drawer (Шторка справа) --- */
-#car-drawer {
-    display: none; /* Скрыт по умолчанию */
+.brand-block { display: flex; align-items: center; gap: 1rem; }
+.logo-placeholder {
+    width: 40px; height: 40px; background: var(--pico-primary);
+    color: white; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-weight: 900;
+}
+.titles h1 { margin: 0; font-size: 1.1rem; line-height: 1.2; }
+.titles small { font-size: 0.75rem; color: var(--pico-muted-color); }
+.version-tag {
+    font-size: 0.6em; background: var(--pico-secondary-background);
+    padding: 2px 6px; border-radius: 4px; color: var(--pico-primary);
 }
 
-#car-drawer[open] {
-    display: flex;
-    justify-content: flex-end; /* Прижимаем вправо */
-    align-items: stretch;
-    width: 100%;
-    height: 100vh;
-    max-width: 100%;
-    max-height: 100%;
-    padding: 0;
-    background: rgba(0,0,0,0.5); /* Затемнение фона */
-    border: none;
+.actions-block { display: flex; align-items: center; gap: 1rem; }
+.api-status {
+    font-size: 0.8rem; display: flex; align-items: center; gap: 8px;
+    background: var(--pico-secondary-background); padding: 4px 12px; border-radius: 20px;
 }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #e74c3c; }
+.online-dot { background-color: #2ecc71 !important; box-shadow: 0 0 5px #2ecc71; }
 
-/* Контент шторки */
-.drawer-content {
-    width: 500px; /* Ширина панели */
-    max-width: 100%;
-    height: 100%;
-    margin: 0;
-    border-radius: 0;
-    overflow-y: auto;
-    background: var(--pico-background-color);
-    animation: slideIn 0.3s ease-out;
+/* --- 2. ДАШБОРД --- */
+.stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 2rem; margin-top: 1rem;
 }
+.stat-card {
+    background: var(--pico-card-background-color); padding: 1.2rem;
+    border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid var(--pico-muted-border-color); text-align: center; margin-bottom: 0;
+}
+.stat-card small {
+    text-transform: uppercase; font-size: 0.7rem; color: var(--pico-muted-color); display: block; margin-bottom: 0.5rem;
+}
+.stat-card h3 { margin: 0; font-size: 1.8rem; font-weight: 700; }
 
-@keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+/* --- 3. ФИЛЬТРЫ (Важно для ровности) --- */
+.toolbar {
+    display: flex; gap: 10px; align-items: center;
+    background: var(--pico-card-background-color); padding: 1rem;
+    border-radius: 8px; border: 1px solid var(--pico-muted-border-color);
+    margin-bottom: 1rem; flex-wrap: wrap;
 }
+.filter-group { flex: 1; min-width: 150px; }
+.toolbar input, .toolbar select { margin-bottom: 0 !important; height: 40px; }
 
-/* --- Табы --- */
-.tabs-nav ul {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--pico-muted-border-color);
+#reset-filters-btn {
+    height: 40px; width: 40px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 0; font-size: 1.2rem; color: #e74c3c; border-color: #e74c3c; padding: 0;
 }
+#reset-filters-btn:hover { background-color: #e74c3c; color: white; }
 
-.tabs-nav li {
-    margin-right: 1rem;
-}
-
-.tab-link {
-    text-decoration: none;
-    padding-bottom: 0.5rem;
-    color: var(--pico-muted-color);
-    border-bottom: 2px solid transparent;
-}
-
-.tab-link.active {
-    color: var(--pico-primary);
-    border-bottom-color: var(--pico-primary);
-    font-weight: bold;
-}
-
-/* Скрытие неактивных табов */
-.tab-pane {
-    display: none;
-}
-.tab-pane.active {
-    display: block;
-    animation: fadeIn 0.2s;
-}
-
-/* Заблокированный таб фото */
-#link-tab-photos[aria-disabled="true"] {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-/* Группы полей */
-.group-title {
-    margin-bottom: 1rem;
-    color: var(--pico-primary);
-    border-bottom: 2px solid var(--pico-muted-border-color);
-    padding-bottom: 0.2rem;
-}
-
-/* Сетка для колонок (если экран позволяет) */
-@media (min-width: 992px) {
-    .drawer-content {
-        width: 800px; /* Делаем шторку шире */
-    }
-}
-
-/* Скрываем инпут файла, стилизуем лейбл */
-.upload-label {
-    border: 2px dashed var(--pico-muted-border-color);
-    padding: 1rem;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 8px;
-    background: var(--pico-card-background-color);
-}
-.upload-label:hover {
-    background-color: var(--pico-secondary-background);
-}
-
-/* --- Фото Менеджер --- */
-
-/* Зона загрузки */
-.dropzone {
-    border: 2px dashed var(--pico-muted-border-color);
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 1rem;
-    background-color: var(--pico-card-background-color);
-}
-.dropzone:hover, .dropzone.drag-over {
-    border-color: var(--pico-primary);
-    background-color: var(--pico-secondary-background);
-}
-.dropzone-content {
-    pointer-events: none; /* Чтобы клик проходил сквозь текст */
-}
-
-/* Сетка фото */
-.photos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-}
-
-/* Карточка фото */
-.photo-card {
-    position: relative;
-    border-radius: 6px;
-    overflow: hidden;
-    aspect-ratio: 4/3;
-    background: #000;
-    cursor: grab;
-    border: 2px solid transparent;
-}
-.photo-card:active {
-    cursor: grabbing;
-}
-
-/* Картинка внутри карточки */
-.photo-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-/* Кнопка удаления (крестик) */
-.photo-delete-btn {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    transition: background 0.2s;
-}
-.photo-delete-btn:hover {
-    background: #e05260;
-}
-
-/* Главное фото (первое в списке) */
-.photo-card.is-main {
-    border-color: var(--pico-primary);
-}
-.photo-card.is-main::after {
-    content: "MAIN";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: var(--pico-primary);
-    color: white;
-    font-size: 0.6em;
-    text-align: center;
-    padding: 2px 0;
-    font-weight: bold;
-}
-
-/* Анимация SortableJS */
-.sortable-ghost {
-    opacity: 0.4;
-    background: var(--pico-primary);
-}
-
-/* Локальное фото (еще не сохранено на сервере) */
-.photo-card.is-local {
-    border: 2px dashed var(--pico-primary);
-}
-.photo-card.is-local::before {
-    content: "NEW";
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: var(--pico-primary);
-    color: white;
-    font-size: 0.6em;
-    padding: 2px 4px;
-    z-index: 2;
-}
-
-/* Спиннер загрузки */
-.photo-card.is-loading::after {
-    content: "⏳";
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.5);
-    font-size: 2rem;
-    color: white;
-}
-
-/* --- Таблица --- */
-
-/* Миниатюра в таблице */
-.table-thumb {
-    width: 60px;
-    height: 45px;
-    object-fit: cover;
-    border-radius: 4px;
-    border: 1px solid var(--pico-muted-border-color);
-}
+/* --- 4. ТАБЛИЦА --- */
+.table-container { overflow-x: auto; }
+.table-thumb { width: 60px; height: 45px; object-fit: cover; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); }
 .no-photo {
-    width: 60px;
-    height: 45px;
-    background: #eee;
-    color: #999;
-    font-size: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
+    width: 60px; height: 45px; background: #eee; color: #999;
+    font-size: 10px; display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; border: 1px dashed #ccc;
 }
-.thumb-cell {
-    width: 70px;
-    padding-right: 0;
-}
+.thumb-cell { width: 70px; padding-right: 0 !important; }
+.id-block { display: flex; flex-direction: column; line-height: 1.2; }
+.id-block small { font-size: 0.7em; color: var(--pico-muted-color); }
+.specs-text { line-height: 1.3; color: var(--pico-muted-color); display: block; }
+.row-hidden { opacity: 0.5; background-color: rgba(0,0,0,0.03); }
 
-/* Бейджи статусов */
+/* --- 5. БЕЙДЖИ --- */
+.badges-stack { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
 .badge {
-    display: inline-block;
-    padding: 2px 6px;
-    font-size: 0.75em;
-    border-radius: 4px;
-    color: white;
-    font-weight: bold;
+    display: inline-block; padding: 3px 8px; font-size: 0.7em; border-radius: 4px;
+    color: white; font-weight: bold; text-transform: uppercase; white-space: nowrap; line-height: 1;
 }
-.badge.stock { background-color: #2ecc71; } /* Зеленый */
-.badge.sold { background-color: #95a5a6; text-decoration: line-through; } /* Серый */
-.badge.order { background-color: #3498db; } /* Синий */
-.badge.hidden { background-color: #e67e22; color: white; } /* Оранжевый */
+.badge.stock { background-color: #2ecc71; }
+.badge.sold { background-color: #95a5a6; text-decoration: line-through; opacity: 0.8; }
+.badge.auction { background-color: #f39c12; }
+.badge.order { background-color: #3498db; }
+.badge.hidden { background-color: #e67e22; }
 
-/* Кнопки действий */
-.icon-btn {
-    padding: 0.2rem 0.5rem;
-    font-size: 1rem;
-    margin-right: 5px;
-    border: none;
-}
-
-/* --- Таблица (Дополнения) --- */
-
-/* Скрытая строка (Opacity) */
-.row-hidden {
-    opacity: 0.6;
-    background-color: rgba(0,0,0,0.02);
-}
-
-/* Стили текста */
-.text-muted {
-    color: var(--pico-muted-color);
-}
-.specs-row {
-    white-space: nowrap;
-}
-.specs-row.small {
-    font-size: 0.85em;
-    color: var(--pico-muted-color);
-}
-
-/* Бейджи статусов */
-.badge {
-    display: inline-block;
-    padding: 3px 8px;
-    font-size: 0.7em;
-    border-radius: 4px;
-    color: white;
-    font-weight: bold;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-.badge.stock { background-color: #2ecc71; } /* Зеленый */
-.badge.sold { background-color: #95a5a6; } /* Серый */
-.badge.auction { background-color: #f39c12; } /* Оранжевый */
-.badge.order { background-color: #3498db; } /* Синий */
-
-/* КНОПКИ ДЕЙСТВИЙ (Красивые) */
-.actions-cell {
-    white-space: nowrap;
-}
-
+/* --- 6. КНОПКИ ДЕЙСТВИЙ --- */
+.actions-cell { white-space: nowrap; text-align: right; }
 .action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    padding: 0;
-    font-size: 1.1rem;
-    margin-right: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 6px; background: transparent;
+    cursor: pointer; padding: 0; font-size: 1.1rem; margin-right: 4px; border: 1px solid transparent;
 }
+.action-btn.btn-edit { color: var(--pico-primary); border-color: var(--pico-primary); }
+.action-btn.btn-edit:hover { background-color: var(--pico-primary); color: white; }
+.action-btn.btn-delete { color: #e74c3c; border-color: #e74c3c; }
+.action-btn.btn-delete:hover { background-color: #e74c3c; color: white; }
 
-/* Кнопка Редактировать (Синяя) */
-.action-btn.btn-edit {
-    border: 1px solid var(--pico-primary);
-    color: var(--pico-primary);
+/* --- 7. ПАГИНАЦИЯ (Fix Pico v2) --- */
+.pagination-toolbar {
+    border-top: 1px solid var(--pico-muted-border-color); padding-top: 1rem; margin-top: 1rem;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
 }
-.action-btn.btn-edit:hover {
-    background-color: var(--pico-primary);
-    color: white;
+.pagination-info { display: flex; align-items: center; gap: 10px; color: var(--pico-muted-color); font-size: 0.9rem; }
+#items-per-page { margin-bottom: 0; padding: 2px 25px 2px 10px; height: 30px; font-size: 0.9rem; width: auto; display: inline-block; }
+.pagination-controls { display: flex; align-items: center; gap: 5px; }
+.pagination-controls button {
+    display: flex; align-items: center; justify-content: center; margin-bottom: 0;
+    flex-grow: 0; width: auto; min-width: 36px; height: 36px; padding: 0;
 }
+#current-page-label { padding: 0 10px; font-weight: bold; }
 
-/* Кнопка Удалить (Красная) */
-.action-btn.btn-delete {
-    border: 1px solid #e74c3c;
-    color: #e74c3c;
+/* --- 8. ШТОРКА --- */
+#car-drawer { display: none; }
+#car-drawer[open] {
+    display: flex; justify-content: flex-end; align-items: stretch; width: 100%; height: 100vh;
+    max-width: 100%; max-height: 100%; padding: 0; background: rgba(0,0,0,0.5); border: none;
 }
-.action-btn.btn-delete:hover {
-    background-color: #e74c3c;
-    color: white;
-}
-
-/* --- Стили Формы (Вертикальная) --- */
-
 .drawer-content {
-    /* Если хочешь широкую на десктопе */
-    width: 600px; 
-    max-width: 100%;
+    width: 600px; max-width: 100%; height: 100%; margin: 0; border-radius: 0;
+    overflow-y: auto; background: var(--pico-background-color); animation: slideIn 0.3s ease-out;
 }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-/* Статус бар (чекбоксы в ряд) */
-.status-bar {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    background: var(--pico-card-background-color);
-    padding: 0.5rem;
-    border-radius: 6px;
-    border: 1px solid var(--pico-muted-border-color);
-    margin-bottom: 1rem;
+/* --- 9. ФУТЕР --- */
+.app-footer {
+    text-align: center; padding: 2rem 0; background: var(--pico-card-background-color);
+    margin-top: 3rem; border-top: 1px solid var(--pico-muted-border-color);
 }
-.status-bar label {
-    font-size: 0.9rem;
-    cursor: pointer;
-    margin-bottom: 0;
-}
-
-/* Группировка полей */
-fieldset {
-    border: 1px solid var(--pico-muted-border-color);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-}
-legend {
-    font-weight: bold;
-    color: var(--pico-primary);
-    padding: 0 0.5rem;
-    font-size: 0.9rem;
-    display: flex; /* Для кнопки парсинга */
-    align-items: center;
-    gap: 10px;
-}
-
-/* Кнопка "Распознать" в заголовке */
-.small-btn {
-    padding: 2px 8px;
-    font-size: 0.7rem;
-    height: auto;
-    margin: 0;
-}
-
-/* Главная цена */
-.main-price-label {
-    background: var(--pico-secondary-background);
-    padding: 0.5rem;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    display: block;
-}
-

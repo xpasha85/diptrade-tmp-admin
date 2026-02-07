@@ -1,70 +1,146 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DipTrade Admin</title>
+    <title>DipTrade Admin v1.0</title>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="container-fluid">
-        <nav>
-            <ul>
-                <li><strong>DipTrade Admin</strong></li>
-                <li><small id="server-status" class="status-badge">Checking API...</small></li>
-            </ul>
-            <ul>
-                <li><input type="search" id="search-input" placeholder="Поиск (в разработке)..."></li>
-                <li><button class="outline contrast" id="refresh-btn">Обновить</button></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main class="container-fluid">
-        <div class="toolbar">
-            <hgroup>
-                <h2>Автомобили</h2>
-                <p>Управление каталогом и статусами</p>
-            </hgroup>
-            <div class="filters">
-                <select id="status-filter" aria-label="Фильтр статуса">
-                    <option value="all">Все статусы</option>
-                    <option value="active">В продаже</option>
-                    <option value="sold">Продано</option>
-                    <option value="hidden">Скрыто</option>
-                </select>
+    <header class="app-header">
+        <div class="container header-content">
+            <div class="brand-block">
+                <div class="logo-placeholder">DIP</div>
+                <div class="titles">
+                    <h1>Admin DIPTrade <span class="version-tag">v1.0</span></h1>
+                    <small>Единый центр управления автокаталогом</small>
+                </div>
+            </div>
+
+            <div class="actions-block">
+                <div class="api-status">
+                    <span class="status-dot" id="api-dot"></span> 
+                    <span id="server-status">Checking...</span>
+                </div>
+                <button onclick="openDrawer()" class="primary" style="margin-bottom: 0;">
+                    + Добавить авто
+                </button>
+                <button class="outline secondary" id="refresh-btn" style="margin-bottom: 0;" title="Обновить данные">
+                    🔄
+                </button>
             </div>
         </div>
+    </header>
 
-        <figure>
+    <main class="container">
+        
+        <section class="stats-grid">
+            <article class="stat-card">
+                <small>Всего автомобилей</small>
+                <h3 id="stat-total">0</h3>
+            </article>
+            <article class="stat-card">
+                <small>На сайте (Активны)</small>
+                <h3 id="stat-active" style="color:var(--pico-primary)">0</h3>
+            </article>
+            <article class="stat-card">
+                <small>Продано</small>
+                <h3 id="stat-sold" style="color:#95a5a6">0</h3>
+            </article>
+            <article class="stat-card">
+                <small>Скрытые</small>
+                <h3 id="stat-hidden" style="color:#e67e22">0</h3>
+            </article>
+        </section>
+
+        <hr>
+
+        <div class="toolbar" id="filter-toolbar">
+            <div class="filter-group search-group" style="flex-grow: 2;">
+                <input type="search" id="search-input" placeholder="🔍 Поиск (ID, Марка, Модель)...">
+            </div>
+
+            <div class="filter-group">
+                <select id="filter-country">
+                    <option value="all">🌍 Все страны</option>
+                    <option value="KR">🇰🇷 Корея</option>
+                    <option value="CN">🇨🇳 Китай</option>
+                    <option value="RU">🇷🇺 Россия</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <select id="filter-status">
+                    <option value="all">Все статусы</option>
+                    <option value="active">🟢 Активные</option>
+                    <option value="stock">📦 В наличии</option>
+                    <option value="sold">💰 Продано</option>
+                    <option value="hidden">👁️ Скрытые</option>
+                </select>
+            </div>
+
+            <button class="outline secondary" id="reset-filters-btn" title="Сбросить фильтры" style="width:auto; padding: 0 1rem;">
+                ✕
+            </button>
+        </div>
+
+        <figure class="table-container">
             <table role="grid">
                 <thead>
                     <tr>
+                        <th scope="col" width="100">ID / Дата</th>
                         <th scope="col" width="100">Фото</th>
                         <th scope="col">Автомобиль</th>
+                        <th scope="col">Характеристики</th>
                         <th scope="col">Цена</th>
                         <th scope="col">Статус</th>
                         <th scope="col" align="right">Действия</th>
                     </tr>
                 </thead>
                 <tbody id="cars-table-body">
-                    <tr><td colspan="5" aria-busy="true">Загрузка данных...</td></tr>
+                    <tr><td colspan="7" aria-busy="true" style="text-align:center;">Загрузка данных...</td></tr>
                 </tbody>
             </table>
         </figure>
 
-        <footer class="pagination-toolbar">
-            <small>Всего авто: <span id="total-count">0</span></small>
-            <div role="group">
-                <button class="outline" disabled>Prev</button>
-                <button class="outline">Next</button>
+        <footer class="pagination-toolbar" id="pagination-bar">
+            <div class="pagination-info">
+                <small>Показано <span id="shown-count">0</span> из <span id="total-count">0</span></small>
+                
+                <select id="items-per-page">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+
+            <div class="pagination-controls">
+                <button class="outline small-btn" id="prev-page-btn" disabled>←</button>
+                <span id="current-page-label">1</span>
+                <button class="outline small-btn" id="next-page-btn">→</button>
             </div>
         </footer>
+
     </main>
+
+    <footer class="app-footer">
+        <div class="container">
+            <small>
+                &copy; 2026 DIPTrade Admin Panel. <br>
+                Created by <strong>xpasha85</strong>.
+            </small>
+        </div>
+    </footer>
+
     <dialog id="car-drawer">
         <article class="drawer-content">
             <header>
@@ -182,7 +258,7 @@
                     <fieldset class="costs-block">
                         <legend>
                             Ценообразование 
-                            <button type="button" class="outline contrast small-btn" id="parse-btn" title="В будущем">🪄 Распознать из текста</button>
+                            <button type="button" class="outline contrast small-btn" id="parse-btn" title="В будущем">🪄 Распознать</button>
                         </legend>
                         
                         <label class="main-price-label">
@@ -191,7 +267,7 @@
                         </label>
 
                         <div class="grid">
-                            <label>Цена закупки (местная валюта)<input type="number" name="car_price_local"></label>
+                            <label>Цена закупки (местная)<input type="number" name="car_price_local"></label>
                             <label>Внутренние расходы<input type="number" name="internal_costs_local"></label>
                         </div>
 
@@ -201,7 +277,7 @@
                         </div>
                         <div class="grid">
                             <label>Оформление (RUB)<input type="number" name="customs_clearance_rub"></label>
-                            <label>Услуги / Владивосток (RUB)<input type="number" name="vladivostok_services_rub" value="100000"></label>
+                            <label>Услуги / Влад (RUB)<input type="number" name="vladivostok_services_rub" value="100000"></label>
                         </div>
 
                         <div id="korea-auction-block" style="display:none; margin-top: 1rem; border-top: 1px dashed #ccc; padding-top: 0.5rem;">
@@ -219,7 +295,6 @@
                         <label>
                             <input type="checkbox" id="has-accident-check"> Автомобиль был в ДТП
                         </label>
-                        
                         <div id="accident-inputs" style="display:none; margin-top:10px;">
                             <div class="grid">
                                 <label>Кол-во выплат<input type="number" name="accidents_count" value="1"></label>
@@ -245,7 +320,6 @@
                             <div id="photos-grid" class="photos-grid"></div>
                         </div>
                     </div>
-
                 </form>
             </div>
 
@@ -255,6 +329,7 @@
             </footer>
         </article>
     </dialog>
+
     <script type="module" src="js/app.js"></script>
 </body>
 </html>
