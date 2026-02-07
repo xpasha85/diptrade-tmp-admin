@@ -1,54 +1,260 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Diptrade Admin (v1)</title>
-  <link rel="stylesheet" href="./styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DipTrade Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="container topbar__row">
-      <div class="brand">
-        <div class="brand__logo">DT</div>
-        <div class="brand__text">
-          <div class="brand__title">Diptrade Admin</div>
-          <div class="brand__subtitle">Read-only (v1)</div>
+    <header class="container-fluid">
+        <nav>
+            <ul>
+                <li><strong>DipTrade Admin</strong></li>
+                <li><small id="server-status" class="status-badge">Checking API...</small></li>
+            </ul>
+            <ul>
+                <li><input type="search" id="search-input" placeholder="Поиск (в разработке)..."></li>
+                <li><button class="outline contrast" id="refresh-btn">Обновить</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container-fluid">
+        <div class="toolbar">
+            <hgroup>
+                <h2>Автомобили</h2>
+                <p>Управление каталогом и статусами</p>
+            </hgroup>
+            <div class="filters">
+                <select id="status-filter" aria-label="Фильтр статуса">
+                    <option value="all">Все статусы</option>
+                    <option value="active">В продаже</option>
+                    <option value="sold">Продано</option>
+                    <option value="hidden">Скрыто</option>
+                </select>
+            </div>
         </div>
-      </div>
 
-      <div class="actions">
-        <button id="btnRefresh" class="btn">Обновить</button>
-      </div>
-    </div>
-  </header>
+        <figure>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th scope="col" width="100">Фото</th>
+                        <th scope="col">Автомобиль</th>
+                        <th scope="col">Цена</th>
+                        <th scope="col">Статус</th>
+                        <th scope="col" align="right">Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="cars-table-body">
+                    <tr><td colspan="5" aria-busy="true">Загрузка данных...</td></tr>
+                </tbody>
+            </table>
+        </figure>
 
-  <main class="container">
-    <section class="status">
-      <div id="apiBadge" class="badge badge--muted">API: неизвестно</div>
-      <div class="muted">Источник данных: <code>cars.json</code></div>
-    </section>
+        <footer class="pagination-toolbar">
+            <small>Всего авто: <span id="total-count">0</span></small>
+            <div role="group">
+                <button class="outline" disabled>Prev</button>
+                <button class="outline">Next</button>
+            </div>
+        </footer>
+    </main>
+    <dialog id="car-drawer">
+        <article class="drawer-content">
+            <header>
+                <button aria-label="Close" rel="prev" id="drawer-close"></button>
+                <h3 id="drawer-title">Автомобиль</h3>
+            </header>
+            
+            <div class="drawer-body">
+                <form id="car-form">
+                    <input type="hidden" name="id">
 
-    <section id="errorBox" class="error hidden">
-      <div class="error__title">Ошибка</div>
-      <pre id="errorText" class="error__text"></pre>
-    </section>
+                    <div class="status-bar">
+                        <label><input type="checkbox" name="is_visible"> На сайте</label>
+                        <label><input type="checkbox" name="in_stock"> В наличии</label>
+                        <label><input type="checkbox" name="is_sold"> Продано</label>
+                        <label><input type="checkbox" name="featured"> ⭐ На главной</label>
+                    </div>
 
-    <section class="panel">
-      <div class="panel__head">
-        <h1 class="panel__title">Автомобили</h1>
-        <div id="countText" class="muted">—</div>
-      </div>
+                    <hr>
 
-      <div id="emptyState" class="empty hidden">
-        <div class="empty__title">Пока нет автомобилей</div>
-        <div class="muted">Добавление будет на следующем этапе. Сейчас — только просмотр.</div>
-      </div>
+                    <fieldset>
+                        <legend>Общие данные</legend>
+                        <div class="grid">
+                            <label>
+                                Страна
+                                <select name="country_code" id="country-select" required>
+                                    <option value="KR">🇰🇷 Корея (KR)</option>
+                                    <option value="CN">🇨🇳 Китай (CN)</option>
+                                    <option value="RU">🇷🇺 Россия (RU)</option>
+                                </select>
+                            </label>
+                            <label>
+                                Дата добавления
+                                <input type="date" name="added_at" required>
+                            </label>
+                        </div>
 
-      <div id="list" class="list"></div>
-    </section>
-  </main>
+                        <div class="grid">
+                            <label>
+                                Марка
+                                <input type="text" name="brand" list="brand-list" required placeholder="Kia">
+                                <datalist id="brand-list"></datalist>
+                            </label>
+                            <label>
+                                Модель
+                                <input type="text" name="model" list="model-list" required placeholder="K5">
+                                <datalist id="model-list"></datalist>
+                            </label>
+                        </div>
 
-  <script src="./app.js"></script>
+                        <label>
+                            Заголовок для сайта (Web Title)
+                            <input type="text" name="web_title" placeholder="Автоматически...">
+                        </label>
+
+                        <div class="grid">
+                            <label>
+                                Год выпуска
+                                <select name="year" id="year-select" required></select>
+                            </label>
+                            <label>
+                                Месяц
+                                <select name="month">
+                                    <option value="">-</option>
+                                    <option value="1">Январь</option>
+                                    <option value="2">Февраль</option>
+                                    <option value="3">Март</option>
+                                    <option value="4">Апрель</option>
+                                    <option value="5">Май</option>
+                                    <option value="6">Июнь</option>
+                                    <option value="7">Июль</option>
+                                    <option value="8">Август</option>
+                                    <option value="9">Сентябрь</option>
+                                    <option value="10">Октябрь</option>
+                                    <option value="11">Ноябрь</option>
+                                    <option value="12">Декабрь</option>
+                                </select>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Характеристики</legend>
+                        <div class="grid">
+                            <label>Объем (см³)<input type="number" name="volume"></label>
+                            <label>Мощность (л.с.)<input type="number" name="hp"></label>
+                            <label>
+                                Топливо
+                                <select name="fuel">
+                                    <option value="Бензин">Бензин</option>
+                                    <option value="Дизель">Дизель</option>
+                                    <option value="Гибрид">Гибрид</option>
+                                    <option value="Электро">Электро</option>
+                                    <option value="LPG">Газ (LPG)</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="grid">
+                            <label>
+                                КПП
+                                <select name="transmission">
+                                    <option value="Автомат">Автомат</option>
+                                    <option value="Робот">Робот</option>
+                                    <option value="Вариатор">Вариатор</option>
+                                    <option value="Механика">Механика</option>
+                                </select>
+                            </label>
+                            <label>Пробег (км)<input type="number" name="mileage"></label>
+                            <label style="padding-top: 1.8rem;">
+                                <input type="checkbox" name="is_4wd"> 4WD (Полный привод)
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="costs-block">
+                        <legend>
+                            Ценообразование 
+                            <button type="button" class="outline contrast small-btn" id="parse-btn" title="В будущем">🪄 Распознать из текста</button>
+                        </legend>
+                        
+                        <label class="main-price-label">
+                            ИТОГОВАЯ ЦЕНА (RUB)
+                            <input type="number" name="price" required style="font-weight:bold; font-size:1.2rem;">
+                        </label>
+
+                        <div class="grid">
+                            <label>Цена закупки (местная валюта)<input type="number" name="car_price_local"></label>
+                            <label>Внутренние расходы<input type="number" name="internal_costs_local"></label>
+                        </div>
+
+                        <div class="grid">
+                            <label>Пошлина (RUB)<input type="number" name="duty_rub"></label>
+                            <label>Утиль (RUB)<input type="number" name="recycling_fee_rub"></label>
+                        </div>
+                        <div class="grid">
+                            <label>Оформление (RUB)<input type="number" name="customs_clearance_rub"></label>
+                            <label>Услуги / Владивосток (RUB)<input type="number" name="vladivostok_services_rub" value="100000"></label>
+                        </div>
+
+                        <div id="korea-auction-block" style="display:none; margin-top: 1rem; border-top: 1px dashed #ccc; padding-top: 0.5rem;">
+                            <div class="grid">
+                                <label style="padding-top: 0.5rem;">
+                                    <input type="checkbox" name="is_auction"> Это Аукцион
+                                </label>
+                                <label>Выгода (RUB)<input type="number" name="auction_benefit"></label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="accidents-block" style="display:none;">
+                        <legend>История / ДТП</legend>
+                        <label>
+                            <input type="checkbox" id="has-accident-check"> Автомобиль был в ДТП
+                        </label>
+                        
+                        <div id="accident-inputs" style="display:none; margin-top:10px;">
+                            <div class="grid">
+                                <label>Кол-во выплат<input type="number" name="accidents_count" value="1"></label>
+                                <label>Сумма (WON)<input type="number" name="damages_won"></label>
+                                <label>Сумма (RUB)<input type="number" name="damages_rub"></label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <hr>
+
+                    <div id="photo-section">
+                        <h6 class="group-title">Фотографии</h6>
+                        <p id="photo-hint" style="color:var(--pico-muted-color);">Сначала сохраните автомобиль.</p>
+
+                        <div id="photo-manager" style="display:none;">
+                            <div class="dropzone" id="upload-dropzone">
+                                <input type="file" id="photos-input" multiple accept="image/*" style="display:none">
+                                <div class="dropzone-content">
+                                    <strong>Перетащите фото сюда</strong>
+                                </div>
+                            </div>
+                            <div id="photos-grid" class="photos-grid"></div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <footer>
+                <button type="submit" form="car-form">Сохранить</button>
+                <button type="button" class="outline secondary" id="drawer-cancel">Отмена</button>
+            </footer>
+        </article>
+    </dialog>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>

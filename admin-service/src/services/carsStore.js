@@ -323,7 +323,7 @@ function validateRequiredCreate(payload) {
   const model = payload?.model;
   const year = payload?.year;
   const price = payload?.price;
-  const country = payload?.country;
+  const country_code = payload?.country_code;
 
   if (typeof brand !== 'string' || brand.trim().length === 0) errors.push('brand is required');
   if (typeof model !== 'string' || model.trim().length === 0) errors.push('model is required');
@@ -336,11 +336,11 @@ function validateRequiredCreate(payload) {
   if (!Number.isFinite(p) || p < 0) errors.push('price is required and must be >= 0');
 
   const allowedCountries = new Set(['KR', 'CN', 'RU']);
-  if (typeof country !== 'string' || !allowedCountries.has(country)) errors.push('country must be one of KR|CN|RU');
+  if (typeof country_code !== 'string' || !allowedCountries.has(country_code)) errors.push('country_code must be one of KR|CN|RU');
 
   if (errors.length) throw makeErr(400, 'VALIDATION_ERROR', errors.join('; '));
 
-  return { brand: brand.trim(), model: model.trim(), year: y, price: p, country };
+  return { brand: brand.trim(), model: model.trim(), year: y, price: p, country_code };
 }
 
 function validatePatch(patch) {
@@ -391,7 +391,7 @@ export async function createCar(env, payload) {
     car.model = req.model;
     car.year = req.year;
     car.price = req.price;
-    car.country = req.country;
+    car.country_code = req.country_code;
 
     await ensureAssetsFolder(env, folder);
 
