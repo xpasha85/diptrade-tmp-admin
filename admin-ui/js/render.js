@@ -25,8 +25,8 @@ export function renderTable(cars) {
         return;
     }
 
-    // Сортировка: Сначала новые
-    const sortedCars = [...cars].sort((a, b) => new Date(b.added_at) - new Date(a.added_at));
+    // Стало (по ID - новые сверху):
+    const sortedCars = [...cars].sort((a, b) => b.id - a.id);
 
     sortedCars.forEach(car => {
         const tr = document.createElement('tr');
@@ -71,8 +71,11 @@ export function renderTable(cars) {
             ? `${car.year}/${String(car.month).padStart(2, '0')}` 
             : `${car.year}`;
         
-        const flags = { 'KR': '🇰🇷', 'CN': '🇨🇳', 'RU': '🇷🇺' };
-        const countryFlag = flags[car.country_code] || car.country_code || 'KR';
+        // --- ФЛАГИ (IMG) ---
+        // Используем код страны (KR, CN, RU) для пути к картинке
+        const flagCode = car.country_code || 'KR';
+        // onerror скрывает картинку, если файл не найден (чтобы не было битой иконки)
+        const countryFlag = `<img src="assets/flags/${flagCode}.png" class="flag-icon" alt="${flagCode}" onerror="this.style.display='none'">`;
 
         let icons = '';
         if (car.featured) icons += '<span title="На главной">⭐</span> ';

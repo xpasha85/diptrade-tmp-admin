@@ -1,12 +1,75 @@
+/* --- 0. ОБЩЕЕ (Layout & Root) --- */
 :root {
-    --pico-font-size: 90%;
+    /* Настройки Pico */
+    --pico-font-size: 15px; 
+    --pico-line-height: 1.4;
+    
+    /* ФИКС ШИРИНЫ: Перебиваем переменную Pico для контейнера */
+    --pico-container-width: 1440px; 
+
+    /* ПЕРЕМЕННЫЕ ЦВЕТОВ (Для твоих кнопок и заголовков) */
+    --primary: #0172ad;         /* Синий (основной) */
+    --primary-hover: #015f91;   /* Темнее при наведении */
+    --bg-body: #f6f7f8;         /* Фон страницы */
+    --text-main: #111827;       /* Черный текст */
+    --text-muted: #6b7280;      /* Серый текст */
+    --text-light: #9ca3af;      /* Светло-серый */
+    --border-color: #e5e7eb;    /* Рамки */
+    --radius-md: 8px;           /* Скругление */
 }
 
-/* --- 1. ШАПКА --- */
+body {
+    background-color: var(--bg-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+body:has(#car-drawer[open]) {
+    overflow: hidden;
+}
+
+/* --- ЛОГОТИП (Картинка) --- */
+.logo-block {
+    display: flex;
+    align-items: center;
+}
+
+.app-logo {
+    height: 40px;       /* Фиксируем высоту под размер шапки */
+    width: auto;        /* Ширина подстроится сама */
+    object-fit: contain;
+    display: block;
+}
+
+/* ГЛАВНЫЙ КОНТЕЙНЕР (ЖЕЛЕЗНО 1440px) */
+/* Мы используем !important, чтобы перебить любые медиа-запросы Pico */
+.container,
+.container-fluid,
+header > div,
+main,
+footer > div {
+    max-width: 1440px !important; 
+    width: 100%;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 1.5rem; /* Отступ слева */
+    padding-right: 1.5rem; /* Отступ справа */
+    box-sizing: border-box;
+}
+
+/* Сброс лишних отступов заголовков */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+/* --- 1. ШАПКА (Header) --- */
 .app-header {
-    background-color: var(--pico-card-background-color);
-    border-bottom: 1px solid var(--pico-muted-border-color);
-    padding: 0.75rem 0;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb; /* Светлая линия */
+    padding: 0.8rem 0;
     margin-bottom: 2rem;
 }
 
@@ -16,124 +79,1084 @@
     align-items: center;
 }
 
-.brand-block { display: flex; align-items: center; gap: 1rem; }
+/* Логотип */
 .logo-placeholder {
-    width: 40px; height: 40px; background: var(--pico-primary);
-    color: white; border-radius: 8px; display: flex;
-    align-items: center; justify-content: center; font-weight: 900;
-}
-.titles h1 { margin: 0; font-size: 1.1rem; line-height: 1.2; }
-.titles small { font-size: 0.75rem; color: var(--pico-muted-color); }
-.version-tag {
-    font-size: 0.6em; background: var(--pico-secondary-background);
-    padding: 2px 6px; border-radius: 4px; color: var(--pico-primary);
+    width: 42px;
+    height: 42px;
+    background: var(--pico-primary);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.actions-block { display: flex; align-items: center; gap: 1rem; }
-.api-status {
-    font-size: 0.8rem; display: flex; align-items: center; gap: 8px;
-    background: var(--pico-secondary-background); padding: 4px 12px; border-radius: 20px;
+/* Статус API (Чип) */
+.api-status-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f9fafb; /* Очень светлый фон */
+    border: 1px solid #e5e7eb;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    color: #374151;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #e74c3c; }
-.online-dot { background-color: #2ecc71 !important; box-shadow: 0 0 5px #2ecc71; }
 
-/* --- 2. ДАШБОРД --- */
+/* Точка статуса */
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #9ca3af; /* Серый (изначально) */
+    display: block;
+}
+
+/* Состояния точки (добавляются JS) */
+.online-dot {
+    background-color: #10b981 !important; /* Зеленый */
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); /* Мягкое свечение */
+}
+
+.offline-dot {
+    background-color: #ef4444 !important; /* Красный */
+}
+
+
+/* --- 2. PAGE HEADER (Заголовок раздела) --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+    padding-bottom: 10px;
+}
+
+/* Обертка для заголовка и версии, чтобы они стояли в ряд */
+.heading-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Расстояние между текстом и версией */
+    margin-bottom: 0.2rem;
+}
+
+.page-title-block h2.page-heading {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0; /* Убираем отступы, так как есть gap у родителя */
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+/* Стиль версии ("таблетка") */
+.version-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-color: #e0f2fe; /* Светло-голубой фон */
+    color: #0284c7;            /* Темно-голубой текст */
+    padding: 4px 10px;
+    border-radius: 20px;       /* Полное скругление */
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1;
+    border: 1px solid #bae6fd; /* Тонкая рамка для четкости */
+}
+
+.page-title-block p.page-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+    font-weight: 400;
+}
+
+/* Блок кнопок справа */
+.page-actions-block {
+    display: flex;
+    gap: 12px;
+}
+
+/* Красивая кнопка "Добавить" */
+.btn-add-new {
+    background-color: var(--primary);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0 24px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 6px -1px rgba(1, 114, 173, 0.2), 0 2px 4px -1px rgba(1, 114, 173, 0.1);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-add-new:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(1, 114, 173, 0.3);
+}
+
+.btn-add-new:active {
+    transform: translateY(0);
+}
+
+.icon-plus {
+    font-size: 1.2em;
+    font-weight: 400;
+    line-height: 1;
+}
+
+/* --- 3. ДАШБОРД (Компактная статистика) --- */
 .stats-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem; margin-bottom: 2rem; margin-top: 1rem;
+    display: grid;
+    /* Ровно 4 колонки. На мобайле перестроится само */
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 16px; /* Небольшие промежутки между карточками */
+    margin-bottom: 24px; /* Отступ до фильтров */
 }
+
 .stat-card {
-    background: var(--pico-card-background-color); padding: 1.2rem;
-    border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    border: 1px solid var(--pico-muted-border-color); text-align: center; margin-bottom: 0;
+    background: white;
+    padding: 12px 16px; /* Очень компактные отступы внутри */
+    border-radius: 8px; /* Скругление меньше */
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 80px; /* Фиксируем небольшую высоту */
 }
+
+/* Заголовок карточки (Label) */
 .stat-card small {
-    text-transform: uppercase; font-size: 0.7rem; color: var(--pico-muted-color); display: block; margin-bottom: 0.5rem;
+    font-size: 0.75rem; /* Мелкий текст */
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 4px;
 }
-.stat-card h3 { margin: 0; font-size: 1.8rem; font-weight: 700; }
 
-/* --- 3. ФИЛЬТРЫ (Важно для ровности) --- */
+/* Цифры */
+.stat-card h3 {
+    font-size: 1.6rem; /* Размер шрифта: крупно, но не гигантски */
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+/* Цвета цифр (Смысловая кодировка) */
+#stat-total  { color: var(--primary); }      /* Синий (База) */
+#stat-active { color: #059669 !important; }  /* Зеленый (В эфире) */
+#stat-sold   { color: #6b7280 !important; }  /* Серый (Архив) */
+#stat-hidden { color: #d97706 !important; }  /* Оранжевый (Скрыто) */
+
+/* Адаптив для мобильных (если вдруг откроешь с телефона) */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr); /* По 2 в ряд */
+    }
+}
+
+/* --- 4. ПАНЕЛЬ ФИЛЬТРОВ (FIX) --- */
+
 .toolbar {
-    display: flex; gap: 10px; align-items: center;
-    background: var(--pico-card-background-color); padding: 1rem;
-    border-radius: 8px; border: 1px solid var(--pico-muted-border-color);
-    margin-bottom: 1rem; flex-wrap: wrap;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 16px;
+    
+    /* Самое важное: включаем строку */
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+    
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    flex-wrap: wrap; /* На мобильных перенесется, на ПК будет в ряд */
 }
-.filter-group { flex: 1; min-width: 150px; }
-.toolbar input, .toolbar select { margin-bottom: 0 !important; height: 40px; }
 
+/* Группы полей (Поиск, Статус) и Селект Страны */
+.filter-group, 
+.toolbar > select { 
+    flex: 1;              /* Равномерно растягиваем */
+    min-width: 150px;     /* Чтобы не сжимались в ноль */
+}
+
+/* Поиск делаем шире остальных */
+.search-group {
+    flex: 2 !important; 
+    min-width: 220px;
+}
+
+/* Стили самих полей (Input & Select) внутри тулбара */
+.toolbar input, 
+.toolbar select {
+    margin-bottom: 0 !important; /* Убираем отступ снизу */
+    height: 42px !important;     /* Фиксируем высоту */
+    width: 100% !important;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #f9fafb;
+    color: var(--text-main);
+}
+
+.toolbar input:focus, 
+.toolbar select:focus {
+    background-color: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(1, 114, 173, 0.1);
+}
+
+/* Кнопка сброса (Крестик) */
 #reset-filters-btn {
-    height: 40px; width: 40px; display: flex; align-items: center; justify-content: center;
-    margin-bottom: 0; font-size: 1.2rem; color: #e74c3c; border-color: #e74c3c; padding: 0;
+    flex: 0 0 auto !important; /* Не растягивать */
+    width: 42px !important;
+    height: 42px !important;
+    padding: 0;
+    
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    
+    background: white;
+    color: #ef4444;
+    border: 1px solid #fee2e2;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 0 !important;
 }
-#reset-filters-btn:hover { background-color: #e74c3c; color: white; }
 
-/* --- 4. ТАБЛИЦА --- */
-.table-container { overflow-x: auto; }
-.table-thumb { width: 60px; height: 45px; object-fit: cover; border-radius: 4px; border: 1px solid var(--pico-muted-border-color); }
-.no-photo {
-    width: 60px; height: 45px; background: #eee; color: #999;
-    font-size: 10px; display: flex; align-items: center; justify-content: center;
-    border-radius: 4px; border: 1px dashed #ccc;
+#reset-filters-btn:hover {
+    background-color: #fef2f2;
+    border-color: #ef4444;
 }
-.thumb-cell { width: 70px; padding-right: 0 !important; }
-.id-block { display: flex; flex-direction: column; line-height: 1.2; }
-.id-block small { font-size: 0.7em; color: var(--pico-muted-color); }
-.specs-text { line-height: 1.3; color: var(--pico-muted-color); display: block; }
-.row-hidden { opacity: 0.5; background-color: rgba(0,0,0,0.03); }
 
-/* --- 5. БЕЙДЖИ --- */
-.badges-stack { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
-.badge {
-    display: inline-block; padding: 3px 8px; font-size: 0.7em; border-radius: 4px;
-    color: white; font-weight: bold; text-transform: uppercase; white-space: nowrap; line-height: 1;
+/* Флаг внутри селекта (учитываем отступ текста) */
+select.with-flag {
+    padding-left: 36px !important; 
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+    background-size: 20px 15px;
 }
-.badge.stock { background-color: #2ecc71; }
-.badge.sold { background-color: #95a5a6; text-decoration: line-through; opacity: 0.8; }
-.badge.auction { background-color: #f39c12; }
-.badge.order { background-color: #3498db; }
-.badge.hidden { background-color: #e67e22; }
 
-/* --- 6. КНОПКИ ДЕЙСТВИЙ --- */
-.actions-cell { white-space: nowrap; text-align: right; }
-.action-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px; border-radius: 6px; background: transparent;
-    cursor: pointer; padding: 0; font-size: 1.1rem; margin-right: 4px; border: 1px solid transparent;
+
+/* --- 5. ТАБЛИЦА (Data Table) --- */
+.table-container {
+    background: white;
+    border: 1px solid var(--border-color);
+    /* Скругляем только верхние углы */
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border-bottom: none; /* Убираем нижнюю линию, чтобы слилось с пагинацией */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    overflow: hidden;
+    margin-bottom: 0; /* Убираем отступ снизу */
 }
-.action-btn.btn-edit { color: var(--pico-primary); border-color: var(--pico-primary); }
-.action-btn.btn-edit:hover { background-color: var(--pico-primary); color: white; }
-.action-btn.btn-delete { color: #e74c3c; border-color: #e74c3c; }
-.action-btn.btn-delete:hover { background-color: #e74c3c; color: white; }
 
-/* --- 7. ПАГИНАЦИЯ (Fix Pico v2) --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+/* Шапка таблицы */
+thead th {
+    background-color: #f9fafb;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+/* Тело таблицы */
+tbody td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+    background: white;
+    transition: background 0.1s;
+}
+
+/* У последней строки убираем линию, чтобы не было двойной границы с пагинацией */
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* Внутренние элементы ячеек (без изменений) */
+.id-block { display: flex; flex-direction: column; gap: 4px; }
+.id-block strong { font-weight: 600; color: var(--text-main); }
+.id-block small { font-size: 0.75em; color: var(--text-light); }
+
+.thumb-cell { width: 80px; padding-right: 10px !important; }
+.table-thumb { width: 70px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); display: block; }
+.no-photo { width: 70px; height: 50px; background: #f3f4f6; color: var(--text-light); font-size: 10px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px dashed #d1d5db; }
+
+.car-title { font-weight: 700; font-size: 1rem; color: var(--text-main); margin-bottom: 4px; line-height: 1.2; }
+.car-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+.specs-text { font-size: 0.85rem; line-height: 1.5; color: var(--text-muted); display: block; }
+.specs-text strong { color: var(--primary); }
+
+.badges-stack { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.badge { padding: 4px 10px; font-size: 0.7rem; border-radius: 20px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+.badge.stock { background-color: #d1fae5; color: #047857; }
+.badge.sold { background-color: #f3f4f6; color: #4b5563; text-decoration: line-through; }
+.badge.auction { background-color: #ffedd5; color: #c2410c; }
+.badge.order { background-color: #e0f2fe; color: #0369a1; }
+
+.actions-cell { text-align: right; white-space: nowrap; }
+.action-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--text-muted); transition: all 0.2s; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; cursor: pointer; }
+.action-btn.btn-edit:hover { background-color: #eff6ff; color: var(--primary); }
+.action-btn.btn-delete:hover { background-color: #fef2f2; color: #ef4444; }
+.row-hidden td { opacity: 0.6; background-color: #f9fafb; }
+.row-hidden:hover td { opacity: 1; }
+
+
+/* --- 6. ПАГИНАЦИЯ (Footer таблицы) --- */
 .pagination-toolbar {
-    border-top: 1px solid var(--pico-muted-border-color); padding-top: 1rem; margin-top: 1rem;
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    display: flex;
+    justify-content: space-between; /* Распределяем по краям */
+    align-items: center;
+    width: 100%; /* ГАРАНТИЯ ширины */
+    
+    background: #f9fafb;
+    border: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    
+    padding: 12px 20px;
+    margin-top: 0;
+    margin-bottom: 40px;
+    box-sizing: border-box; /* Чтобы padding не ломал ширину */
 }
-.pagination-info { display: flex; align-items: center; gap: 10px; color: var(--pico-muted-color); font-size: 0.9rem; }
-#items-per-page { margin-bottom: 0; padding: 2px 25px 2px 10px; height: 30px; font-size: 0.9rem; width: auto; display: inline-block; }
-.pagination-controls { display: flex; align-items: center; gap: 5px; }
+
+/* ЛЕВАЯ ЧАСТЬ */
+.pagination-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    
+    /* МАГИЯ ЗДЕСЬ: Занимаем всё доступное место слева */
+    flex-grow: 1; 
+    
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+#items-per-page {
+    width: auto;
+    display: inline-block;
+    padding: 4px 30px 4px 12px;
+    height: 32px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: white; 
+    color: var(--text-main);
+    margin-bottom: 0 !important;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+#items-per-page:hover { border-color: #d1d5db; }
+
+/* ПРАВАЯ ЧАСТЬ */
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    /* Убрали margin-left: auto, так как flex-grow у соседа сделает всё сам */
+    flex-shrink: 0; /* Запрещаем сжиматься кнопкам */
+}
+
+/* Счетчик страниц */
+#current-page-label {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--text-main);
+    padding: 0 12px;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* КНОПКИ */
 .pagination-controls button {
-    display: flex; align-items: center; justify-content: center; margin-bottom: 0;
-    flex-grow: 0; width: auto; min-width: 36px; height: 36px; padding: 0;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    background: white; 
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
-#current-page-label { padding: 0 10px; font-weight: bold; }
 
-/* --- 8. ШТОРКА --- */
-#car-drawer { display: none; }
-#car-drawer[open] {
-    display: flex; justify-content: flex-end; align-items: stretch; width: 100%; height: 100vh;
-    max-width: 100%; max-height: 100%; padding: 0; background: rgba(0,0,0,0.5); border: none;
+.pagination-controls button:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--primary);
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(1, 114, 173, 0.15);
+    transform: translateY(-1px);
 }
-.drawer-content {
-    width: 600px; max-width: 100%; height: 100%; margin: 0; border-radius: 0;
-    overflow-y: auto; background: var(--pico-background-color); animation: slideIn 0.3s ease-out;
-}
-@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-/* --- 9. ФУТЕР --- */
+.pagination-controls button:disabled {
+    background-color: white; 
+    border-color: #e5e7eb;
+    color: #d1d5db;
+    cursor: not-allowed;
+    opacity: 1;
+    box-shadow: none;
+}
+
+/* --- 7. ФУТЕР САЙТА (Copyright) --- */
 .app-footer {
-    text-align: center; padding: 2rem 0; background: var(--pico-card-background-color);
-    margin-top: 3rem; border-top: 1px solid var(--pico-muted-border-color);
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: auto; /* Прижимает футер к низу экрана, если контента мало */
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    background-color: white; /* Можно оставить прозрачным или сделать белым */
+}
+
+.app-footer strong {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* --- 8. МОДАЛЬНОЕ ОКНО (Pop-up) --- */
+/* Сам диалог (Фон) */
+#car-drawer {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1000;
+    justify-content: center; align-items: center;
+    padding: 20px;
+    border: none; margin: 0;
+}
+
+#car-drawer[open] { display: flex; }
+
+/* Контент окна (Карточка) */
+.drawer-content {
+    width: 1100px; /* Было 800, стало шире */
+    max-width: 95vw; /* На всякий случай, чтобы влезало в экран ноута */
+    max-height: 90vh;
+    height: auto;
+    
+    background-color: #f9fafb; 
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    display: flex; flex-direction: column;
+    animation: modalScaleIn 0.2s ease-out;
+    overflow: hidden;
+}
+
+@keyframes modalScaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* 1. Шапка - БЕЛАЯ (поверх серого) */
+.drawer-content header {
+    background-color: #ffffff;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
+}
+.drawer-content header h3 {
+    margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main);
+}
+
+/* Кнопка закрытия */
+#drawer-close {
+    width: 28px; height: 28px; background: white;
+    border: 1px solid var(--border-color); color: var(--text-muted);
+    border-radius: 6px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s;
+}
+#drawer-close:hover { background-color: #fee2e2; color: #ef4444; border-color: #ef4444; }
+#drawer-close::after { content: "✕"; font-size: 0.9rem; line-height: 1; }
+
+/* 2. Тело окна - ПРОЗРАЧНОЕ (просвечивает серый фон карточки) */
+.drawer-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 24px;
+    /* Убрали background-color, так как родитель уже серый */
+}
+
+/* --- СЕТКА ФОРМЫ (Колонки) --- */
+
+/* Контейнер для колонок */
+.form-columns {
+    display: grid;
+    /* Пропорция 65% на 35%. 1fr 1fr — это 50/50. */
+    grid-template-columns: 1.8fr 1fr; 
+    gap: 24px;
+    grid-column: 1 / -1; 
+    align-items: start;
+}
+
+/* Вертикальные стеки внутри колонок */
+.form-column-left, 
+.form-column-right {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Расстояние между блоками внутри колонки */
+}
+
+/* Общий сброс для формы, чтобы не конфликтовал старый grid */
+#car-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Элементы на всю ширину */
+.status-bar, 
+#photo-section {
+    width: 100%;
+    margin-top: 16px; /* Оптимальный отступ без линии */
+}
+
+/* Убираем высоту 100%, чтобы блоки не растягивались искусственно */
+fieldset {
+    height: auto;
+    margin-bottom: 0;
+}
+
+/* 3. Футер окна - БЕЛЫЙ */
+.drawer-content footer {
+    background-color: #ffffff;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+    display: flex; 
+    justify-content: flex-end; /* Кнопки прижаты вправо */
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* Стили кнопок в футере модалки */
+.drawer-content footer button {
+    width: auto;       /* Кнопка не на всю ширину */
+    min-width: 140px;  /* Но достаточно широкая для удобства */
+    margin-bottom: 0;  /* Убираем отступ Pico */
+    padding: 10px 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Кнопка "Сохранить" (основная) */
+.drawer-content footer button[type="submit"] {
+    background-color: var(--primary);
+    border: none;
+    color: white;
+}
+
+/* Кнопка "Отмена" (второстепенная) */
+.drawer-content footer button.secondary {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+.drawer-content footer button.secondary:hover {
+    background-color: #f9fafb;
+    color: var(--text-main);
+}
+
+/* --- ВНУТРЕННИЕ ЭЛЕМЕНТЫ ФОРМЫ --- */
+
+/* Блоки полей - БЕЛЫЕ КАРТОЧКИ */
+fieldset {
+    background-color: #ffffff; /* Белый фон для блоков */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 6px 18px;
+    margin-bottom: 00px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+/* Заголовок секции - ближе к полям */
+legend {
+    font-weight: 700;
+    color: var(--text-main);
+    padding: 0 6px;
+    font-size: 0.85rem;
+    margin-bottom: -5px; /* "Прижимаем" заголовок ниже к полям */
+}
+
+/* Статус бар */
+.status-bar {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex; flex-wrap: wrap; gap: 16px;
+    /* --- ВОТ ЗДЕСЬ РЕГУЛИРУЕМ --- */
+    margin-bottom: 6px; /* Отступ СНИЗУ (до колонок с полями) */
+    margin-top: 0;       /* Отступ СВЕРХУ (обычно 0, но можно добавить, если прилипает) */
+}
+.status-bar label {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 600; color: #0369a1; cursor: pointer;
+    font-size: 0.85rem; margin-bottom: 0;
+}
+
+/* Сетка полей - плотнее */
+.drawer-body .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px 16px; /* 10px по высоте (было 16), 16px по ширине */
+    margin-bottom: 8px; /* Отступ между группами строк */
+}
+
+/* Специальная сетка для блока Характеристик: строго 3 колонки */
+#car-form fieldset:nth-of-type(2) .grid {
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 10px 16px;
+}
+
+/* На всякий случай, если ты захочешь более точный селектор, 
+   можно добавить класс прямо в HTML или использовать этот: */
+.form-column-left fieldset:last-of-type .grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+}
+
+/* Инпуты и Селекты в модальном окне */
+.drawer-body input, 
+.drawer-body select {
+    height: 40px;          /* Чуть увеличим высоту для комфорта */
+    font-size: 0.85rem;    /* Немного уменьшим шрифт, чтобы текст точно влезал */
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    background-color: white;
+    padding: 0 10px;       /* Уменьшаем боковые отступы */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Специфические правки для select (выпадающих списков) */
+.drawer-body select {
+    /* В Pico CSS на селектах висит фоновая иконка стрелочки, 
+       уменьшим отступ справа, чтобы он не «съедал» место для текста */
+    padding-right: 30px !important; 
+    line-height: 1.2;
+    appearance: none; /* Убираем стандартные стили браузера для чистоты */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+}
+
+.drawer-body label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 2px; /* Почти вплотную к инпуту */
+    display: block;
+}
+
+/* --- ФИНАЛЬНЫЙ ФИКС: ВЫРАВНИВАНИЕ ПО ЦЕНТРУ ИНПУТОВ --- */
+
+/* 1. Общий стиль для всех галочек (красивые квадратики) */
+.drawer-body input[type="checkbox"],
+.status-bar input[type="checkbox"] {
+    appearance: checkbox !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+/* 2. Настройка контейнеров (чтобы галочка и текст были по центру друг друга) */
+.status-bar label,
+.drawer-body label:has(input[type="checkbox"]) {
+    display: flex !important;
+    align-items: center !important; /* Центруем галочку и текст по вертикали */
+    gap: 10px !important;
+    line-height: 1 !important;
+    margin-bottom: 0 !important;
+}
+
+/* 3. ЖЕСТКОЕ ВЫРАВНИВАНИЕ 4WD ПО ЛИНИИ СОСЕДЕЙ */
+.drawer-body .grid label:has(input[name="is_4wd"]) {
+    /* Математика выравнивания:
+       Соседние поля имеют заголовок (~22px высотой).
+       Мы даем чекбоксу такой же отступ сверху, чтобы он "пропустил" место заголовка.
+    */
+    margin-top: 22px !important; 
+    
+    /* Задаем высоту точь-в-точь как у соседнего инпута (38px или 40px) */
+    height: 38px !important; 
+    
+    /* Убеждаемся, что внутри этой высоты всё стоит по центру */
+    display: flex !important;
+    align-items: center !important;
+}
+
+
+/* --- КНОПКА РАСЧЕТА (Внутри блока РФ) --- */
+
+/* Контейнер кнопки: прижимает её вправо и дает отступ снизу до полей */
+.calc-btn-container {
+    display: flex;
+    justify-content: flex-end; /* Кнопка справа */
+    margin-bottom: 12px;       /* Воздух до инпутов */
+}
+
+/* Сама кнопка */
+#parse-btn {
+    width: auto;               /* Размер по содержимому */
+    height: 36px;              /* Стандартная высота */
+    padding: 0 20px;           /* Хорошие отступы по бокам */
+    
+    background-color: #fff;    /* Белый фон */
+    border: 1px solid var(--primary);
+    color: var(--primary);     /* Синий текст */
+    
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    margin: 0 !important;      /* Убираем лишние отступы Pico */
+}
+
+#parse-btn:hover {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 2px 4px rgba(1, 114, 173, 0.2);
+}
+
+#parse-btn:active {
+    transform: translateY(1px);
+}
+
+/* Цена */
+.main-price-label {
+    background: #ecfdf5; border: 1px solid #6ee7b7;
+    padding: 12px; border-radius: 8px; 
+    margin-bottom: 16px !important;
+}
+
+/* --- 9. ФОТО МЕНЕДЖЕР (Pro Version) --- */
+
+/* Заголовок секции */
+.photo-header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.group-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-main);
+}
+
+/* Бейдж счетчика (сколько фото загружено) */
+.photo-badge {
+    background-color: #f3f4f6;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+/* --- ЗОНА ЗАГРУЗКИ (DROPZONE) --- */
+.dropzone {
+    border: 2px dashed #cbd5e1; /* Серый пунктир */
+    border-radius: 12px;
+    background: #f8fafc;        /* Очень светлый фон */
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+}
+
+.dropzone:hover, 
+.dropzone.drag-over {
+    border-color: var(--primary); /* Синий пунктир при наведении */
+    background: #eff6ff;          /* Голубоватый фон */
+}
+
+.dropzone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+}
+
+.dropzone-content p { margin: 0; font-size: 0.95rem; }
+.dropzone-content strong { color: var(--primary); }
+.dropzone-content small { font-size: 0.8rem; opacity: 0.7; }
+
+/* Иконка загрузки */
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    color: #9ca3af;
+    margin-bottom: 4px;
+    transition: color 0.2s;
+}
+
+.dropzone:hover .upload-icon {
+    color: var(--primary);
+}
+
+/* --- СЕТКА ФОТОГРАФИЙ --- */
+.photos-grid {
+    display: grid;
+    /* Адаптивная сетка: карточки не меньше 120px */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+/* Карточка фото */
+.photo-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 4/3; /* Стандарт для авто-фото */
+    background: #e5e7eb;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.photo-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* --- СТИЛЬ ГЛАВНОГО ФОТО --- */
+.photo-card.is-main {
+    border-color: var(--primary); /* Синяя рамка */
+}
+
+/* Бейдж "ГЛАВНОЕ" */
+.photo-card.is-main::after {
+    content: "★ ГЛАВНОЕ";
+    position: absolute;
+    bottom: 0; left: 0; width: 100%;
+    background: rgba(1, 114, 173, 0.9); /* Полупрозрачный синий */
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 4px 0;
+    letter-spacing: 0.05em;
+    backdrop-filter: blur(2px);
+}
+
+/* --- КНОПКА УДАЛЕНИЯ --- */
+.photo-delete-btn {
+    position: absolute;
+    top: 6px; right: 6px;
+    
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    
+    background: rgba(255, 255, 255, 0.9); /* Белая подложка */
+    color: #ef4444; /* Красная иконка */
+    border: 1px solid #fee2e2;
+    
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px; /* Размер крестика */
+    line-height: 1;
+    
+    opacity: 0; /* Скрыта по умолчанию */
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+    padding: 0; /* Сброс Pico */
+}
+
+/* Показываем кнопку при наведении на карточку */
+.photo-card:hover .photo-delete-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.photo-delete-btn:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+/* --- СТИЛЬ БЛОКА ФОТО (Белая карточка) --- */
+#photo-section {
+    background-color: #ffffff;      /* Белый фон */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;             /* Скругление как у fieldset */
+    padding: 20px;                  /* Внутренние отступы */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;               /* Отступ от линии hr */
+}
+
+/* Заголовок внутри карточки */
+.photo-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f3f4f6; /* Легкая линия внутри */
+    padding-bottom: 8px;
+}
+
+.group-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-main);
+    text-transform: uppercase;      /* Сделаем стиль как у Legend для единообразия */
+    letter-spacing: 0.05em;
+}
+
+
+
+/* --- ВЛОЖЕННЫЕ ГРУППЫ (ЗАКУП АВТО) --- */
+
+fieldset.sub-group {
+    background-color: #f8fafc;  /* Очень светлый серо-голубой фон */
+    border: 1px dashed #cbd5e1; /* Пунктирная рамка для отличия */
+    margin-bottom: 12px;        /* Отступ снизу до следующих полей */
+    padding: 10px 14px;         /* Компактные отступы внутри */
+}
+
+fieldset.sub-group legend {
+    color: var(--primary);      /* Синий цвет заголовка */
+    font-size: 0.7rem;          /* Чуть мельче основного */
+    text-transform: uppercase;  /* КАПСОМ */
+    letter-spacing: 0.05em;
+    font-weight: 800;
+    background: transparent;    /* Чтобы не перекрывал пунктир некрасиво */
+}
+
+/* Убираем лишние отступы у сетки внутри подгруппы */
+fieldset.sub-group .grid {
+    margin-bottom: 0;
+}
+
+/* ПРИНУДИТЕЛЬНАЯ СЕТКА 2x2 ДЛЯ ПОДГРУПП */
+fieldset.sub-group .grid {
+    /* Жестко делим на 2 равные колонки, игнорируя ширину экрана */
+    grid-template-columns: 1fr 1fr !important; 
+    
+    /* Уменьшаем расстояние между полями, чтобы влезло красиво */
+    gap: 10px !important; 
+    margin-bottom: 0 !important;
+}
+
+/* Если экран совсем узкий (мобила), тогда разрешаем складываться */
+@media (max-width: 768px) {
+    fieldset.sub-group .grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* --- БЛОК ДТП В ОДНУ СТРОКУ --- */
+
+.accidents-row {
+    display: flex;
+    align-items: flex-end; /* Прижимаем к низу, чтобы чекбокс был ровно напротив инпутов */
+    gap: 20px;
+    width: 100%;
+}
+
+/* Настройка чекбокса в этом блоке */
+.accident-check-wrapper {
+    /* Фиксируем высоту как у инпута (40px) + небольшой отступ, 
+       чтобы компенсировать рамки */
+    height: 40px !important; 
+    margin-bottom: 4px !important; /* Такой же отступ снизу, как у инпутов */
+    white-space: nowrap; /* Текст не переносится */
+    min-width: max-content;
+}
+
+/* Контейнер с полями */
+#accident-inputs {
+    flex-grow: 1; /* Занимает всё оставшееся место справа */
+    margin-top: 0 !important; /* Убираем старые отступы JS */
+}
+
+/* Сетка внутри полей (3 в ряд) */
+.accidents-grid {
+    display: grid;
+    /* Первое поле (Выплат) - 70px, остальные делят место пополам */
+    grid-template-columns: 70px 1fr 1fr !important; 
+    gap: 12px !important;
+    margin-bottom: 0 !important;
+}
+
+/* --- ФЛАГИ СТРАН --- */
+
+/* 1. Флаг в таблице (маленькая иконка) */
+.flag-icon {
+    width: 20px;
+    height: 15px;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    vertical-align: middle;
+    margin-right: 6px; /* Отступ до текста */
 }

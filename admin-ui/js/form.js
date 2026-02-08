@@ -17,6 +17,21 @@ export function initForm(refreshCallback) {
     const closeBtn = document.getElementById('drawer-close');
     const cancelBtn = document.getElementById('drawer-cancel');
 
+    // === ЛОГИКА ФЛАГОВ В СЕЛЕКТЕ ===
+    const countrySelect = form.country_code;
+    
+    const updateModalFlag = () => {
+        const val = countrySelect.value;
+        if (val) {
+            countrySelect.style.backgroundImage = `url('assets/flags/${val}.png')`;
+        } else {
+            countrySelect.style.backgroundImage = 'none';
+        }
+    };
+
+    // Слушаем изменение
+    countrySelect.addEventListener('change', updateModalFlag);
+
     initYearSelect();
     setupPhotoManager();
     setupAutoCapitalize(form);

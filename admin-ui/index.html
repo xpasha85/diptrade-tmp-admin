@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru" data-theme="light">
 <head>
+    <link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
+    <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DipTrade Admin v1.0</title>
@@ -14,33 +17,37 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
     <header class="app-header">
         <div class="container header-content">
-            <div class="brand-block">
-                <div class="logo-placeholder">DIP</div>
-                <div class="titles">
-                    <h1>Admin DIPTrade <span class="version-tag">v1.0</span></h1>
-                    <small>Единый центр управления автокаталогом</small>
-                </div>
+            <div class="logo-block">
+                <img src="assets/img/logo.png" alt="DIPTrade Admin" class="app-logo">
             </div>
 
-            <div class="actions-block">
-                <div class="api-status">
-                    <span class="status-dot" id="api-dot"></span> 
-                    <span id="server-status">Checking...</span>
+            <div class="status-block">
+                <div class="api-status-chip">
+                    <span class="status-dot" id="api-dot"></span>
+                    <span class="api-text">API: <span id="server-status">Checking...</span></span>
                 </div>
-                <button onclick="openDrawer()" class="primary" style="margin-bottom: 0;">
-                    + Добавить авто
-                </button>
-                <button class="outline secondary" id="refresh-btn" style="margin-bottom: 0;" title="Обновить данные">
-                    🔄
-                </button>
             </div>
         </div>
     </header>
 
     <main class="container">
+        <div class="page-header">
+            <div class="page-title-block">
+                <div class="heading-wrapper">
+                    <h2 class="page-heading">Admin DIPTrade</h2>
+                    <span class="version-pill">v.1.0</span>
+                </div>
+                <p class="page-subtitle">Единый центр управления автокаталогом</p>
+            </div>
+            
+            <div class="page-actions-block">
+                <button onclick="openDrawer()" class="primary btn-add-new">
+                    <span class="icon-plus">+</span> Добавить авто
+                </button>
+            </div>
+        </div>
         
         <section class="stats-grid">
             <article class="stat-card">
@@ -65,23 +72,22 @@
 
         <div class="toolbar" id="filter-toolbar">
             <div class="filter-group search-group" style="flex-grow: 2;">
-                <input type="search" id="search-input" placeholder="🔍 Поиск (ID, Марка, Модель)...">
+                <input type="search" id="search-input" placeholder=" Поиск (ID, Марка, Модель)...">
             </div>
 
-            <div class="filter-group">
-                <select id="filter-country">
-                    <option value="all">🌍 Все страны</option>
-                    <option value="KR">🇰🇷 Корея</option>
-                    <option value="CN">🇨🇳 Китай</option>
-                    <option value="RU">🇷🇺 Россия</option>
-                </select>
-            </div>
+            <select id="filter-country" class="with-flag">
+                <option value="">Все страны</option>
+                <option value="KR">Корея</option>
+                <option value="CN">Китай</option>
+                <option value="RU">Россия</option>
+            </select>
 
             <div class="filter-group">
                 <select id="filter-status">
                     <option value="all">Все статусы</option>
                     <option value="active">🟢 Активные</option>
-                    <option value="stock">📦 В наличии</option>
+                    <option value="featured">⭐ На главной</option>
+                    <option value="auction">🔨 Аукцион</option> <option value="stock">📦 В наличии</option>
                     <option value="sold">💰 Продано</option>
                     <option value="hidden">👁️ Скрытые</option>
                 </select>
@@ -111,7 +117,7 @@
             </table>
         </figure>
 
-        <footer class="pagination-toolbar" id="pagination-bar">
+        <div class="pagination-toolbar" id="pagination-bar">
             <div class="pagination-info">
                 <small>Показано <span id="shown-count">0</span> из <span id="total-count">0</span></small>
                 
@@ -128,7 +134,7 @@
                 <span id="current-page-label">1</span>
                 <button class="outline small-btn" id="next-page-btn">→</button>
             </div>
-        </footer>
+        </div>
 
     </main>
 
@@ -144,8 +150,9 @@
     <dialog id="car-drawer">
         <article class="drawer-content">
             <header>
-                <button aria-label="Close" rel="prev" id="drawer-close"></button>
                 <h3 id="drawer-title">Автомобиль</h3>
+                <button aria-label="Close" rel="prev" id="drawer-close"></button>
+                
             </header>
             
             <div class="drawer-body">
@@ -153,170 +160,195 @@
                     <input type="hidden" name="id">
 
                     <div class="status-bar">
-                        <label><input type="checkbox" name="is_visible"> На сайте</label>
-                        <label><input type="checkbox" name="in_stock"> В наличии</label>
+                        <label><input type="checkbox" name="is_visible"> Показывать на сайте</label>
+                        <label><input type="checkbox" name="in_stock"> В наличии (выкуплено)</label>
                         <label><input type="checkbox" name="is_sold"> Продано</label>
-                        <label><input type="checkbox" name="featured"> ⭐ На главной</label>
+                        <label><input type="checkbox" name="featured"> ⭐ Показывать на главной</label>
                     </div>
 
-                    <hr>
-
-                    <fieldset>
-                        <legend>Общие данные</legend>
-                        <div class="grid">
-                            <label>
-                                Страна
-                                <select name="country_code" id="country-select" required>
-                                    <option value="KR">🇰🇷 Корея (KR)</option>
-                                    <option value="CN">🇨🇳 Китай (CN)</option>
-                                    <option value="RU">🇷🇺 Россия (RU)</option>
-                                </select>
-                            </label>
-                            <label>
-                                Дата добавления
-                                <input type="date" name="added_at" required>
-                            </label>
-                        </div>
-
-                        <div class="grid">
-                            <label>
-                                Марка
-                                <input type="text" name="brand" list="brand-list" required placeholder="Kia">
-                                <datalist id="brand-list"></datalist>
-                            </label>
-                            <label>
-                                Модель
-                                <input type="text" name="model" list="model-list" required placeholder="K5">
-                                <datalist id="model-list"></datalist>
-                            </label>
-                        </div>
-
-                        <label>
-                            Заголовок для сайта (Web Title)
-                            <input type="text" name="web_title" placeholder="Автоматически...">
-                        </label>
-
-                        <div class="grid">
-                            <label>
-                                Год выпуска
-                                <select name="year" id="year-select" required></select>
-                            </label>
-                            <label>
-                                Месяц
-                                <select name="month">
-                                    <option value="">-</option>
-                                    <option value="1">Январь</option>
-                                    <option value="2">Февраль</option>
-                                    <option value="3">Март</option>
-                                    <option value="4">Апрель</option>
-                                    <option value="5">Май</option>
-                                    <option value="6">Июнь</option>
-                                    <option value="7">Июль</option>
-                                    <option value="8">Август</option>
-                                    <option value="9">Сентябрь</option>
-                                    <option value="10">Октябрь</option>
-                                    <option value="11">Ноябрь</option>
-                                    <option value="12">Декабрь</option>
-                                </select>
-                            </label>
-                        </div>
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>Характеристики</legend>
-                        <div class="grid">
-                            <label>Объем (см³)<input type="number" name="volume"></label>
-                            <label>Мощность (л.с.)<input type="number" name="hp"></label>
-                            <label>
-                                Топливо
-                                <select name="fuel">
-                                    <option value="Бензин">Бензин</option>
-                                    <option value="Дизель">Дизель</option>
-                                    <option value="Гибрид">Гибрид</option>
-                                    <option value="Электро">Электро</option>
-                                    <option value="LPG">Газ (LPG)</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="grid">
-                            <label>
-                                КПП
-                                <select name="transmission">
-                                    <option value="Автомат">Автомат</option>
-                                    <option value="Робот">Робот</option>
-                                    <option value="Вариатор">Вариатор</option>
-                                    <option value="Механика">Механика</option>
-                                </select>
-                            </label>
-                            <label>Пробег (км)<input type="number" name="mileage"></label>
-                            <label style="padding-top: 1.8rem;">
-                                <input type="checkbox" name="is_4wd"> 4WD (Полный привод)
-                            </label>
-                        </div>
-                    </fieldset>
-
-                    <fieldset class="costs-block">
-                        <legend>
-                            Ценообразование 
-                            <button type="button" class="outline contrast small-btn" id="parse-btn" title="В будущем">🪄 Распознать</button>
-                        </legend>
+                    <div class="form-columns">
                         
-                        <label class="main-price-label">
-                            ИТОГОВАЯ ЦЕНА (RUB)
-                            <input type="number" name="price" required style="font-weight:bold; font-size:1.2rem;">
-                        </label>
+                        <div class="form-column-left">
+                            <fieldset>
+                                <legend>Общие данные</legend>
+                                <div class="grid">
+                                    <label>
+                                        Страна
+                                        <select name="country_code" id="country-select" class="with-flag" required>
+                                            <option value="KR">Корея (KR)</option>
+                                            <option value="CN">Китай (CN)</option>
+                                            <option value="RU">Россия (RU)</option>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        Дата добавления
+                                        <input type="date" name="added_at" required>
+                                    </label>
+                                </div>
 
-                        <div class="grid">
-                            <label>Цена закупки (местная)<input type="number" name="car_price_local"></label>
-                            <label>Внутренние расходы<input type="number" name="internal_costs_local"></label>
-                        </div>
+                                <div class="grid">
+                                    <label>
+                                        Марка
+                                        <input type="text" name="brand" list="brand-list" required placeholder="Kia">
+                                        <datalist id="brand-list"></datalist>
+                                    </label>
+                                    <label>
+                                        Модель
+                                        <input type="text" name="model" list="model-list" required placeholder="K5">
+                                        <datalist id="model-list"></datalist>
+                                    </label>
+                                </div>
 
-                        <div class="grid">
-                            <label>Пошлина (RUB)<input type="number" name="duty_rub"></label>
-                            <label>Утиль (RUB)<input type="number" name="recycling_fee_rub"></label>
-                        </div>
-                        <div class="grid">
-                            <label>Оформление (RUB)<input type="number" name="customs_clearance_rub"></label>
-                            <label>Услуги / Влад (RUB)<input type="number" name="vladivostok_services_rub" value="100000"></label>
-                        </div>
-
-                        <div id="korea-auction-block" style="display:none; margin-top: 1rem; border-top: 1px dashed #ccc; padding-top: 0.5rem;">
-                            <div class="grid">
-                                <label style="padding-top: 0.5rem;">
-                                    <input type="checkbox" name="is_auction"> Это Аукцион
+                                <label>
+                                    Заголовок для сайта (Web Title)
+                                    <input type="text" name="web_title" placeholder="Автоматически...">
                                 </label>
-                                <label>Выгода (RUB)<input type="number" name="auction_benefit"></label>
-                            </div>
-                        </div>
-                    </fieldset>
 
-                    <fieldset id="accidents-block" style="display:none;">
-                        <legend>История / ДТП</legend>
-                        <label>
-                            <input type="checkbox" id="has-accident-check"> Автомобиль был в ДТП
-                        </label>
-                        <div id="accident-inputs" style="display:none; margin-top:10px;">
-                            <div class="grid">
-                                <label>Кол-во выплат<input type="number" name="accidents_count" value="1"></label>
-                                <label>Сумма (WON)<input type="number" name="damages_won"></label>
-                                <label>Сумма (RUB)<input type="number" name="damages_rub"></label>
-                            </div>
-                        </div>
-                    </fieldset>
+                                <div class="grid">
+                                    <label>
+                                        Год выпуска
+                                        <select name="year" id="year-select" required></select>
+                                    </label>
+                                    <label>
+                                        Месяц
+                                        <select name="month">
+                                            <option value="">-</option>
+                                            <option value="1">Январь</option>
+                                            <option value="2">Февраль</option>
+                                            <option value="3">Март</option>
+                                            <option value="4">Апрель</option>
+                                            <option value="5">Май</option>
+                                            <option value="6">Июнь</option>
+                                            <option value="7">Июль</option>
+                                            <option value="8">Август</option>
+                                            <option value="9">Сентябрь</option>
+                                            <option value="10">Октябрь</option>
+                                            <option value="11">Ноябрь</option>
+                                            <option value="12">Декабрь</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </fieldset>
 
-                    <hr>
+                            <fieldset>
+                                <legend>Характеристики</legend>
+                                <div class="grid">
+                                    <label>Объем (см³)<input type="number" name="volume"></label>
+                                    <label>Мощность (л.с.)<input type="number" name="hp"></label>
+                                    <label>
+                                        Топливо
+                                        <select name="fuel">
+                                            <option value="Бензин">Бензин</option>
+                                            <option value="Дизель">Дизель</option>
+                                            <option value="Гибрид">Гибрид</option>
+                                            <option value="Электро">Электро</option>
+                                            <option value="LPG">Газ (LPG)</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="grid">
+                                    <label>
+                                        КПП
+                                        <select name="transmission">
+                                            <option value="Автомат">Автомат</option>
+                                            <option value="Робот">Робот</option>
+                                            <option value="Вариатор">Вариатор</option>
+                                            <option value="Механика">Механика</option>
+                                        </select>
+                                    </label>
+                                    <label>Пробег (км)<input type="number" name="mileage"></label>
+                                    <label style="display: flex; align-items: center;">
+                                        <input type="checkbox" name="is_4wd"> Полный привод
+                                    </label>
+                                </div>
+                            </fieldset>
+                            <fieldset id="accidents-block" style="display:none;">
+                                <legend>История / ДТП</legend>
+                                
+                                <div class="accidents-row">
+                                    
+                                    <label class="accident-check-wrapper">
+                                        <input type="checkbox" id="has-accident-check"> 
+                                        Был в ДТП
+                                    </label>
+
+                                    <div id="accident-inputs" style="display:none;">
+                                        <div class="grid accidents-grid">
+                                            <label>Выплат<input type="number" name="accidents_count" value="1"></label>
+                                            <label>Ущерб (WON)<input type="number" name="damages_won"></label>
+                                            <label>Ущерб (RUB)<input type="number" name="damages_rub"></label>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </fieldset>
+                        </div> <div class="form-column-right">
+                            <fieldset class="costs-block">
+                                <legend>Ценообразование</legend>
+                                
+                                <label class="drawer-body main-price-label"> ИТОГОВАЯ ЦЕНА (RUB)
+                                    <input type="number" name="price" required style="font-weight:bold; font-size:1.2rem;">
+                                </label>
+
+                                <fieldset class="sub-group">
+                                    <legend>ЗАКУП АВТО</legend>
+                                    <div class="grid">
+                                        <label>Цена закупки (местная)<input type="number" name="car_price_local"></label>
+                                        <label>Внутренние расходы<input type="number" name="internal_costs_local"></label>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset class="sub-group">
+                                    <legend>РАСХОДЫ ПО РОССИИ</legend>
+                                    
+                                    <div class="calc-btn-container">
+                                        <button type="button" id="parse-btn">🪄 Распознать (ТКС)</button>
+                                    </div>
+
+                                    <div class="grid">
+                                        <label>Пошлина (RUB)<input type="number" name="duty_rub"></label>
+                                        <label>Утиль (RUB)<input type="number" name="recycling_fee_rub"></label>
+                                        <label>Оформление (RUB)<input type="number" name="customs_clearance_rub"></label>
+                                        <label>Услуги / Влад (RUB)<input type="number" name="vladivostok_services_rub" value="100000"></label>
+                                    </div>
+                                </fieldset>
+
+                                <div id="korea-auction-block" style="display:none; margin-top: 1rem; border-top: 1px dashed #ccc; padding-top: 0.5rem;">
+                                    <div class="grid">
+                                        <label style="padding-top: 0.5rem;">
+                                            <input type="checkbox" name="is_auction"> Это Аукцион
+                                        </label>
+                                        <label>Выгода (RUB)<input type="number" name="auction_benefit"></label>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            
+                        </div> </div> 
 
                     <div id="photo-section">
-                        <h6 class="group-title">Фотографии</h6>
-                        <p id="photo-hint" style="color:var(--pico-muted-color);">Сначала сохраните автомобиль.</p>
+                        <div class="photo-header-row">
+                            <h6 class="group-title">Фотографии</h6>
+                            <!-- <span id="photo-count" class="photo-badge">0</span> -->
+                        </div>
+
+                        <p id="photo-hint" style="color:var(--text-muted); font-size: 0.9rem;">
+                            Сначала сохраните автомобиль, чтобы добавлять фото.
+                        </p>
 
                         <div id="photo-manager" style="display:none;">
+                            
                             <div class="dropzone" id="upload-dropzone">
                                 <input type="file" id="photos-input" multiple accept="image/*" style="display:none">
                                 <div class="dropzone-content">
-                                    <strong>Перетащите фото сюда</strong>
+                                    <svg class="upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <p><strong>Нажмите</strong> или перетащите фото сюда</p>
+                                    <small>Поддерживаются JPG, PNG, WEBP</small>
                                 </div>
                             </div>
+
                             <div id="photos-grid" class="photos-grid"></div>
                         </div>
                     </div>
