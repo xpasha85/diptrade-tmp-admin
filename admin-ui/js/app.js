@@ -85,10 +85,18 @@ function applyFilters() {
     const status = statusFilter ? statusFilter.value : 'all';
 
     filteredCars = carsCache.filter(car => {
-        // 1. Поиск (Search)
+        // 1. Поиск (Умный Search)
         if (search) {
-            const searchStr = `${car.id} ${car.brand} ${car.model} ${car.web_title || ''} ${car.price || ''}`.toLowerCase();
-            if (!searchStr.includes(search)) return false;
+            // 1. Собираем большую строку со всеми данными (добавил Год, Топливо, VIN)
+            const searchStr = `${car.id} ${car.brand} ${car.model} ${car.year} ${car.fuel || ''} ${car.web_title || ''} ${car.price || ''}`.toLowerCase();
+
+            // 2. Разбиваем запрос пользователя на слова по пробелам
+            const terms = search.split(/\s+/); // ["kia", "2020"]
+
+            // 3. Проверяем, что КАЖДОЕ слово есть внутри searchStr
+            const isMatch = terms.every(term => searchStr.includes(term));
+
+            if (!isMatch) return false;
         }
 
         // 2. Страна (Country)

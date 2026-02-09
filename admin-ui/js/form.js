@@ -98,6 +98,7 @@ export function openDrawer(car = null) {
         title.textContent = "Новый автомобиль";
         
         form.id.value = ""; 
+        if (form.hide_on_site) form.hide_on_site.checked = false;
         form.added_at.valueAsDate = new Date();
         form.country_code.value = "KR"; 
         form.year.value = new Date().getFullYear();
@@ -289,7 +290,7 @@ function buildPayload(formData) {
         
         in_stock: formData.get('in_stock') === 'on',
         is_sold: formData.get('is_sold') === 'on',
-        is_visible: formData.get('is_visible') === 'on',
+        is_visible: formData.get('hide_on_site') !== 'on',
         featured: formData.get('featured') === 'on',
         is_auction: formData.get('is_auction') === 'on',
         auction_benefit: getNum('auction_benefit'),
@@ -371,7 +372,7 @@ function fillForm(form, car) {
 
     form.in_stock.checked = !!car.in_stock;
     form.is_sold.checked = !!car.is_sold;
-    form.is_visible.checked = car.is_visible !== false;
+    form.hide_on_site.checked = (car.is_visible === false);
     form.featured.checked = !!car.featured;
     form.is_auction.checked = !!car.is_auction;
     form.auction_benefit.value = car.auction_benefit || '';
